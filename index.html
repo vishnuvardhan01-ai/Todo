@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,130 +8,254 @@
 
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
         }
 
-        .container {
-            background-color: white;
-            width: 400px;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px gray;
+        .todo-container {
+            width: 100%;
+            max-width: 550px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         h1 {
             text-align: center;
+            margin-bottom: 25px;
+            color: #333;
         }
 
-        .input-box {
+        .input-section {
             display: flex;
             gap: 10px;
+            margin-bottom: 20px;
         }
 
-        input {
+        #taskInput {
             flex: 1;
-            padding: 10px;
-            border: 1px solid gray;
-            border-radius: 5px;
+            min-width: 0;
+            padding: 13px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            font-size: 16px;
         }
 
-        button {
-            padding: 10px 15px;
+        #taskInput:focus {
+            border-color: #667eea;
+        }
+
+        #addBtn {
+            padding: 13px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            font-size: 16px;
             cursor: pointer;
         }
 
-        .add-btn {
-            background-color: green;
-            color: white;
+        #addBtn:hover {
+            background: #5568d8;
         }
 
-        ul {
-            padding: 0;
-            margin-top: 20px;
-        }
-
-        li {
+        #taskList {
             list-style: none;
-            background-color: #eeeeee;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 5px;
         }
 
-        li.completed {
+        .task {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .task span {
+            flex: 1;
+            word-break: break-word;
+            color: #333;
+        }
+
+        .task.completed span {
             text-decoration: line-through;
-            color: gray;
+            color: #888;
         }
 
         .delete-btn {
-            background-color: red;
+            border: none;
+            background: #ff4d4d;
             color: white;
+            padding: 7px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #e63939;
+        }
+
+        .task-count {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Tablet */
+        @media (max-width: 768px) {
+            .todo-container {
+                max-width: 500px;
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+                align-items: flex-start;
+                padding-top: 40px;
+            }
+
+            .todo-container {
+                padding: 20px;
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .input-section {
+                flex-direction: column;
+            }
+
+            #taskInput,
+            #addBtn {
+                width: 100%;
+            }
+
+            #addBtn {
+                padding: 12px;
+            }
+
+            .task {
+                padding: 10px;
+            }
+
+            .delete-btn {
+                padding: 6px 8px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="todo-container">
 
-        <h1>Todo List</h1>
+        <h1>My Todo List</h1>
 
-        <div class="input-box">
-            <input type="text" id="taskInput" placeholder="Enter a task">
-            <button class="add-btn" onclick="addTask()">Add</button>
+        <div class="input-section">
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Enter a task..."
+            >
+
+            <button id="addBtn">Add</button>
         </div>
 
         <ul id="taskList"></ul>
 
+        <div class="task-count">
+            Tasks: <span id="taskCount">0</span>
+        </div>
+
     </div>
 
     <script>
+        const taskInput = document.getElementById("taskInput");
+        const addBtn = document.getElementById("addBtn");
+        const taskList = document.getElementById("taskList");
+        const taskCount = document.getElementById("taskCount");
 
         function addTask() {
+            const taskText = taskInput.value.trim();
 
-            let input = document.getElementById("taskInput");
-            let task = input.value;
-
-            if (task == "") {
-                alert("Please enter a task");
+            if (taskText === "") {
+                alert("Please enter a task!");
                 return;
             }
 
-            let li = document.createElement("li");
+            const li = document.createElement("li");
+            li.className = "task";
 
-            li.innerHTML = `
-                <span onclick="completeTask(this)">${task}</span>
-                <button class="delete-btn" onclick="deleteTask(this)">Delete</button>
-            `;
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
 
-            document.getElementById("taskList").appendChild(li);
+            const span = document.createElement("span");
+            span.textContent = taskText;
 
-            input.value = "";
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete";
+            deleteBtn.className = "delete-btn";
+
+            checkbox.addEventListener("change", function () {
+                li.classList.toggle("completed", checkbox.checked);
+            });
+
+            deleteBtn.addEventListener("click", function () {
+                li.remove();
+                updateCount();
+            });
+
+            li.appendChild(checkbox);
+            li.appendChild(span);
+            li.appendChild(deleteBtn);
+
+            taskList.appendChild(li);
+
+            taskInput.value = "";
+            taskInput.focus();
+
+            updateCount();
         }
 
-        function completeTask(element) {
-            element.parentElement.classList.toggle("completed");
+        function updateCount() {
+            taskCount.textContent = taskList.children.length;
         }
 
-        function deleteTask(button) {
-            button.parentElement.remove();
-        }
+        addBtn.addEventListener("click", addTask);
 
+        taskInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                addTask();
+            }
+        });
     </script>
 
 </body>
 </html>
+```
